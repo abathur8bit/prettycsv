@@ -32,19 +32,25 @@ import java.lang.reflect.Proxy;
 public class AppFrame extends JFrame implements InvocationHandler {
     SqlFormatter formatter = new SqlFormatter();
     JFileChooser fileChooser;   //used by windows
-    FileDialog dlg; // used by mac
+    FileDialog fileDialog;      //used by mac
     boolean isMac = false;
 
     public AppFrame() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         String lcOSName = System.getProperty("os.name").toLowerCase();
         isMac = lcOSName.startsWith("mac os x");
-        System.out.println("os.name="+lcOSName+" ismac="+isMac);
         if(isMac) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");
         }
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         initComponents();
+
+        if(!isMac) {
+            customizeNonMac();
+        }
+
+        fileDialog = new FileDialog(this);
 
         fileChooser = new JFileChooser();
         fileChooser.addChoosableFileFilter(new OpenFileFilter("csv","Comma Separated") );
@@ -91,18 +97,28 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
     private void exitButtonActionPerformed(ActionEvent e) {
         System.exit(0);
+//            int retval = JOptionPane.showConfirmDialog(this,"Are you sure you want to quit?","Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+//            if(retval == JOptionPane.YES_OPTION) {
+//            }
     }
 
     protected void customizeNonMac() {
         final JFrame parent = this;
         JMenuItem item = new JMenuItem("Options...");
-//        item.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                OptionsDialog dlg = new OptionsDialog(parent);
-//                dlg.setVisible(true);
-//            }
-//        });
+        item.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                optionsSelected();
+            }
+        });
         fileMenu.add(item);
+
+        JMenuItem exitMenuItem = new JMenuItem("Exit");
+        exitMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                exitButtonActionPerformed(e);
+            }
+        });
+        fileMenu.add(exitMenuItem);
     }
 
     /**
@@ -111,20 +127,33 @@ public class AppFrame extends JFrame implements InvocationHandler {
      */
     public Object invoke(Object proxy,Method meth,Object[] args) throws Throwable {
         if (meth.getName().equals("handleQuit")) {
-            System.exit(0);
-//            int retval = JOptionPane.showConfirmDialog(this,"Are you sure you want to quit?","Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
-//            if(retval == JOptionPane.YES_OPTION) {
-//            }
+            exitButtonActionPerformed(null);
         } else if (meth.getName().equals("handleAbout")) {
             AboutDialog dlg = new AboutDialog(this);
             dlg.setVisible(true);
         } else if (meth.getName().equals("handlePrefs")) {
-            JOptionPane.showMessageDialog(this,"No yet implemented");
-//            JDialog dlg = new OptionsDialog(this);
-//            dlg.setVisible(true);
+            optionsSelected();
         }
 
         return null;
+    }
+
+    private void optionsSelected() {
+        JOptionPane.showMessageDialog(this,"No yet implemented");
+//            JDialog dlg = new OptionsDialog(this);
+//            dlg.setVisible(true);
+    }
+
+    private void openFileDialog() {
+        if(isMac) {
+            fileDialog.setVisible(true);
+        } else {
+            fileChooser.showOpenDialog(this);
+        }
+    }
+
+    private void openMenuItemActionPerformed(ActionEvent e) {
+        openFileDialog();
     }
 
     private void initComponents() {
@@ -167,6 +196,11 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
                 //---- openMenuItem ----
                 openMenuItem.setText("Open...");
+                openMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        openMenuItemActionPerformed(e);
+                    }
+                });
                 fileMenu.add(openMenuItem);
             }
             menuBar1.add(fileMenu);

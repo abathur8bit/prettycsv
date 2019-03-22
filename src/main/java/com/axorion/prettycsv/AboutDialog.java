@@ -7,6 +7,8 @@ package com.axorion.prettycsv;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * @author Lee Patterson
@@ -20,6 +22,10 @@ public class AboutDialog extends JDialog {
     public AboutDialog(Dialog owner) {
         super(owner);
         initComponents();
+    }
+
+    private void okButtonActionPerformed(ActionEvent e) {
+        setVisible(false);
     }
 
     private void initComponents() {
@@ -85,6 +91,11 @@ public class AboutDialog extends JDialog {
 
                 //---- okButton ----
                 okButton.setText("OK");
+                okButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        okButtonActionPerformed(e);
+                    }
+                });
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
