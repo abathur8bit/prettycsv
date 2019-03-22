@@ -18,15 +18,32 @@
 
 package com.axorion.prettycsv;
 
-/**
- * Pretty CSV App main entry point.
- */
-public class App
-{
-    public static void main( String[] args ) throws Exception {
-        AppFrame instance = new AppFrame();
-        instance.setSize(640,480);
-        instance.setLocationRelativeTo(null);
-        instance.setVisible(true);
+import javax.swing.filechooser.FileFilter;
+import java.io.File;
+
+public class OpenFileFilter extends FileFilter {
+
+    String description = "";
+    String fileExt = "";
+
+    public OpenFileFilter(String extension) {
+        fileExt = extension;
+    }
+
+    public OpenFileFilter(String extension, String typeDescription) {
+        fileExt = extension;
+        this.description = typeDescription;
+    }
+
+    @Override
+    public boolean accept(File f) {
+        if (f.isDirectory())
+            return true;
+        return (f.getName().toLowerCase().endsWith(fileExt));
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 }

@@ -18,18 +18,58 @@
 
 package com.axorion.prettycsv;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  * @author Lee Patterson
  */
-public class AppFrame extends JFrame {
+public class AppFrame extends JFrame implements InvocationHandler {
     SqlFormatter formatter = new SqlFormatter();
+    JFileChooser fileChooser;   //used by windows
+    FileDialog dlg; // used by mac
+    boolean isMac = false;
 
-    public AppFrame() {
+    public AppFrame() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        String lcOSName = System.getProperty("os.name").toLowerCase();
+        isMac = lcOSName.startsWith("mac os x");
+        System.out.println("os.name="+lcOSName+" ismac="+isMac);
+        if(isMac) {
+            System.setProperty("apple.laf.useScreenMenuBar", "true");
+        }
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initComponents();
+
+        fileChooser = new JFileChooser();
+        fileChooser.addChoosableFileFilter(new OpenFileFilter("csv","Comma Separated") );
+        fileChooser.addChoosableFileFilter(new OpenFileFilter("txt","Tab Separated") );
+
+        try {
+            Class quitHandlerClass = Class.forName("com.apple.mrj.MRJQuitHandler");
+            Class aboutHandlerClass = Class.forName("com.apple.mrj.MRJAboutHandler");
+            Class prefHandlerClass = Class.forName("com.apple.mrj.MRJPrefsHandler");
+
+            Class mrjapputilsClass = Class.forName("com.apple.mrj.MRJApplicationUtils");
+            Object methodHandler = Proxy.newProxyInstance(quitHandlerClass.getClassLoader(),new Class[] {quitHandlerClass,aboutHandlerClass,prefHandlerClass},this);
+
+            Method appUtilsObj = mrjapputilsClass.getMethod("registerQuitHandler",new Class[] {quitHandlerClass});
+            appUtilsObj.invoke(null,new Object[] {methodHandler});
+
+            appUtilsObj = mrjapputilsClass.getMethod("registerAboutHandler",new Class[] {aboutHandlerClass});
+            appUtilsObj.invoke(null,new Object[] {methodHandler});
+
+            appUtilsObj = mrjapputilsClass.getMethod("registerPrefsHandler",new Class[] {prefHandlerClass});
+            appUtilsObj.invoke(null,new Object[] {methodHandler});
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void convertButtonActionPerformed(ActionEvent e) {
@@ -49,11 +89,49 @@ public class AppFrame extends JFrame {
         }
     }
 
+    private void exitButtonActionPerformed(ActionEvent e) {
+        System.exit(0);
+    }
+
+    protected void customizeNonMac() {
+        final JFrame parent = this;
+        JMenuItem item = new JMenuItem("Options...");
+//        item.addActionListener(new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                OptionsDialog dlg = new OptionsDialog(parent);
+//                dlg.setVisible(true);
+//            }
+//        });
+        fileMenu.add(item);
+    }
+
+    /**
+     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object,
+     *      java.lang.reflect.Method, java.lang.Object[])
+     */
+    public Object invoke(Object proxy,Method meth,Object[] args) throws Throwable {
+        if (meth.getName().equals("handleQuit")) {
+            System.exit(0);
+//            int retval = JOptionPane.showConfirmDialog(this,"Are you sure you want to quit?","Confirmation",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE);
+//            if(retval == JOptionPane.YES_OPTION) {
+//            }
+        } else if (meth.getName().equals("handleAbout")) {
+            AboutDialog dlg = new AboutDialog(this);
+            dlg.setVisible(true);
+        } else if (meth.getName().equals("handlePrefs")) {
+            JOptionPane.showMessageDialog(this,"No yet implemented");
+//            JDialog dlg = new OptionsDialog(this);
+//            dlg.setVisible(true);
+        }
+
+        return null;
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
         menuBar1 = new JMenuBar();
-        menu1 = new JMenu();
+        fileMenu = new JMenu();
         clearMenuItem = new JMenuItem();
         openMenuItem = new JMenuItem();
         menu2 = new JMenu();
@@ -79,19 +157,19 @@ public class AppFrame extends JFrame {
         //======== menuBar1 ========
         {
 
-            //======== menu1 ========
+            //======== fileMenu ========
             {
-                menu1.setText("File");
+                fileMenu.setText("File");
 
                 //---- clearMenuItem ----
                 clearMenuItem.setText("Clear");
-                menu1.add(clearMenuItem);
+                fileMenu.add(clearMenuItem);
 
                 //---- openMenuItem ----
                 openMenuItem.setText("Open...");
-                menu1.add(openMenuItem);
+                fileMenu.add(openMenuItem);
             }
-            menuBar1.add(menu1);
+            menuBar1.add(fileMenu);
 
             //======== menu2 ========
             {
@@ -165,6 +243,11 @@ public class AppFrame extends JFrame {
 
                 //---- exitButton ----
                 exitButton.setText("Exit");
+                exitButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        exitButtonActionPerformed(e);
+                    }
+                });
                 panel3.add(exitButton);
             }
             panel2.add(panel3, BorderLayout.EAST);
@@ -178,7 +261,7 @@ public class AppFrame extends JFrame {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     // Generated using JFormDesigner non-commercial license
     private JMenuBar menuBar1;
-    private JMenu menu1;
+    private JMenu fileMenu;
     private JMenuItem clearMenuItem;
     private JMenuItem openMenuItem;
     private JMenu menu2;
