@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SqlFormatterTest {
 
-    final String COMMA_HEADING = "id,name,selected,amount";
-
     @Test
     public void pad() {
         SqlFormatter target = new SqlFormatter();
@@ -39,7 +37,7 @@ class SqlFormatterTest {
     @Test
     public void parse() {
         SqlFormatter target = new SqlFormatter();
-        String commaFixture = COMMA_HEADING;
+        String commaFixture = "id,name,selected,amount";
         String[] result = target.parse(commaFixture,",");
         assertEquals(4,         result.length);
         assertEquals("id",      result[0]);
