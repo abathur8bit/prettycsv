@@ -10,7 +10,7 @@ cp -v target/prettycsv-1.0.jar ~/Public/prettycsv-1.0.jar
 javapackager -deploy \
     -title "PrettyCSV" \
     -name "PrettyCSV" \
-    -appclass com.axorion.prettycsv.App \
+    -appclass com.axorion.prettycsv.PrettyCSV \
     -native image \
     -Bicon=PrettyCSV.icns \
     -outdir dist \

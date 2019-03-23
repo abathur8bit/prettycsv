@@ -22,7 +22,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>com.axorion.prettycsv.App</mainClass>
+              <mainClass>com.axorion.prettycsv.PrettyCSV</mainClass>
             </manifest>
           </archive>
         </configuration>

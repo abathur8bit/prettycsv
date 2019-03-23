@@ -21,14 +21,14 @@ package com.axorion.prettycsv;
 import javax.swing.*;
 
 /**
- * Pretty CSV App main entry point.
+ * Pretty CSV PrettyCSV main entry point.
  */
-public class App
+public class PrettyCSV
 {
     static AppFrame instance;
 
     public static void main( String[] args ) throws Exception {
-        instance = new AppFrame();
+        instance = new AppFrame("Pretty CSV");
         instance.setSize(640,480);
         instance.setLocationRelativeTo(null);
         instance.setVisible(true);

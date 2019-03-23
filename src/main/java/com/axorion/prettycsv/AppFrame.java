@@ -54,7 +54,8 @@ public class AppFrame extends JFrame implements InvocationHandler {
     };
     int colorIndex=0;
 
-    public AppFrame() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, IOException, BackingStoreException, InvalidPreferencesFormatException {
+    public AppFrame(String title) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, IOException, BackingStoreException, InvalidPreferencesFormatException {
+        super(title);
         prefs = new PrettyPrefs();
         prefs.loadPrefs();
         formatter = new SqlFormatter(",",prefs.getColumnGap());
@@ -101,7 +102,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
             appUtilsObj.invoke(null,new Object[] {methodHandler});
 
         } catch(Exception e) {
-            App.handleError("Error during application initialization",e);
+            PrettyCSV.handleError("Error during application initialization",e);
         }
     }
 
@@ -314,7 +315,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
         exitButton = new JButton();
 
         //======== this ========
-        setTitle("Pretty CSV");
+        setTitle("PrettyCSV");
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 

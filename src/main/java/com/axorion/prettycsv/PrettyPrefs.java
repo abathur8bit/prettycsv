@@ -32,7 +32,7 @@ public class PrettyPrefs {
                 columnGap = prefs.getInt("columnGap",columnGap);
                 headingType = HeadingTypeEnum.valueOf(prefs.get("headingType",HeadingTypeEnum.HEADING_UPPERCASE.toString()));
             } catch(Exception e) {
-                App.handleError("Unable to load preferences from ["+getPrefsFile().getAbsolutePath()+"]",e);
+                PrettyCSV.handleError("Unable to load preferences from ["+getPrefsFile().getAbsolutePath()+"]",e);
             }
         }
     }
@@ -47,7 +47,7 @@ public class PrettyPrefs {
             OutputStream os = new FileOutputStream(getPrefsFile());
             prefs.exportNode(os);
         } catch(Exception e) {
-            App.handleError("Unable to load prefs from ["+getPrefsFile().getAbsolutePath()+"]",e);
+            PrettyCSV.handleError("Unable to load prefs from ["+getPrefsFile().getAbsolutePath()+"]",e);
         }
     }
 

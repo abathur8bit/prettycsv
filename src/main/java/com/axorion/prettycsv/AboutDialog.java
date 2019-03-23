@@ -56,7 +56,7 @@ public class AboutDialog extends JDialog {
             dialogPane.setLayout(new BorderLayout());
 
             //---- iconLabel ----
-            iconLabel.setText("text");
+            iconLabel.setText("128x128");
             dialogPane.add(iconLabel, BorderLayout.WEST);
 
             //======== panel1 ========
@@ -68,7 +68,7 @@ public class AboutDialog extends JDialog {
                     contentPanel.setLayout(new GridLayout(0, 1));
 
                     //---- label1 ----
-                    label1.setText("Pretty CSV");
+                    label1.setText("PrettyCSV");
                     label1.setHorizontalAlignment(SwingConstants.CENTER);
                     label1.setFont(new Font(".SF NS Text", Font.PLAIN, 26));
                     contentPanel.add(label1);
