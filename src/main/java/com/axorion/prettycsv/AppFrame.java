@@ -84,25 +84,27 @@ public class AppFrame extends JFrame implements InvocationHandler {
         fileChooser.addChoosableFileFilter(new OpenFileFilter("csv","Comma Separated") );
         fileChooser.addChoosableFileFilter(new OpenFileFilter("txt","Tab Separated") );
 
-        try {
-            Class quitHandlerClass = Class.forName("com.apple.mrj.MRJQuitHandler");
-            Class aboutHandlerClass = Class.forName("com.apple.mrj.MRJAboutHandler");
-            Class prefHandlerClass = Class.forName("com.apple.mrj.MRJPrefsHandler");
+        if(isMac) {
+            try {
+                Class quitHandlerClass = Class.forName("com.apple.mrj.MRJQuitHandler");
+                Class aboutHandlerClass = Class.forName("com.apple.mrj.MRJAboutHandler");
+                Class prefHandlerClass = Class.forName("com.apple.mrj.MRJPrefsHandler");
 
-            Class mrjapputilsClass = Class.forName("com.apple.mrj.MRJApplicationUtils");
-            Object methodHandler = Proxy.newProxyInstance(quitHandlerClass.getClassLoader(),new Class[] {quitHandlerClass,aboutHandlerClass,prefHandlerClass},this);
+                Class mrjapputilsClass = Class.forName("com.apple.mrj.MRJApplicationUtils");
+                Object methodHandler = Proxy.newProxyInstance(quitHandlerClass.getClassLoader(),new Class[] {quitHandlerClass,aboutHandlerClass,prefHandlerClass},this);
 
-            Method appUtilsObj = mrjapputilsClass.getMethod("registerQuitHandler",new Class[] {quitHandlerClass});
-            appUtilsObj.invoke(null,new Object[] {methodHandler});
+                Method appUtilsObj = mrjapputilsClass.getMethod("registerQuitHandler",new Class[] {quitHandlerClass});
+                appUtilsObj.invoke(null,new Object[] {methodHandler});
 
-            appUtilsObj = mrjapputilsClass.getMethod("registerAboutHandler",new Class[] {aboutHandlerClass});
-            appUtilsObj.invoke(null,new Object[] {methodHandler});
+                appUtilsObj = mrjapputilsClass.getMethod("registerAboutHandler",new Class[] {aboutHandlerClass});
+                appUtilsObj.invoke(null,new Object[] {methodHandler});
 
-            appUtilsObj = mrjapputilsClass.getMethod("registerPrefsHandler",new Class[] {prefHandlerClass});
-            appUtilsObj.invoke(null,new Object[] {methodHandler});
+                appUtilsObj = mrjapputilsClass.getMethod("registerPrefsHandler",new Class[] {prefHandlerClass});
+                appUtilsObj.invoke(null,new Object[] {methodHandler});
 
-        } catch(Exception e) {
-            PrettyCSV.handleError("Error during application initialization",e);
+            } catch(Exception e) {
+                PrettyCSV.handleError("Error during application initialization",e);
+            }
         }
     }
 
