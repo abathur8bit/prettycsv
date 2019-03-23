@@ -204,7 +204,6 @@ public class AppFrame extends JFrame implements InvocationHandler {
         buttonPanel = new JPanel();
         convertButton = new JButton();
         exitButton = new JButton();
-        label3 = new JLabel();
 
         //======== this ========
         setTitle("Pretty CSV");
@@ -348,12 +347,6 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 buttonPanel.add(exitButton);
             }
             controlsPanel.add(buttonPanel, BorderLayout.EAST);
-
-            //---- label3 ----
-            label3.setText("Pretty CSV");
-            label3.setHorizontalAlignment(SwingConstants.CENTER);
-            label3.setFont(new Font("Courier", Font.PLAIN, 14));
-            controlsPanel.add(label3, BorderLayout.CENTER);
         }
         contentPane.add(controlsPanel, BorderLayout.SOUTH);
         pack();
@@ -387,6 +380,5 @@ public class AppFrame extends JFrame implements InvocationHandler {
     private JPanel buttonPanel;
     private JButton convertButton;
     private JButton exitButton;
-    private JLabel label3;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
