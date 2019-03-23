@@ -14,9 +14,11 @@ import java.awt.event.ActionListener;
  * @author Lee Patterson
  */
 public class AboutDialog extends JDialog {
-    public AboutDialog(Frame owner) {
+    public AboutDialog(AppFrame owner) {
         super(owner);
         initComponents();
+        iconLabel.setIcon(new ImageIcon(owner.loadImage("pcsv-macOS_128.png")));
+        iconLabel.setText("");
     }
 
     public AboutDialog(Dialog owner) {
@@ -32,6 +34,7 @@ public class AboutDialog extends JDialog {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
         dialogPane = new JPanel();
+        iconLabel = new JLabel();
         panel1 = new JPanel();
         contentPanel = new JPanel();
         label1 = new JLabel();
@@ -51,6 +54,10 @@ public class AboutDialog extends JDialog {
         {
             dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
             dialogPane.setLayout(new BorderLayout());
+
+            //---- iconLabel ----
+            iconLabel.setText("text");
+            dialogPane.add(iconLabel, BorderLayout.WEST);
 
             //======== panel1 ========
             {
@@ -111,6 +118,7 @@ public class AboutDialog extends JDialog {
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     // Generated using JFormDesigner non-commercial license
     private JPanel dialogPane;
+    private JLabel iconLabel;
     private JPanel panel1;
     private JPanel contentPanel;
     private JLabel label1;
