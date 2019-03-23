@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
 public class SqlFormatter {
     protected String delim;
     protected int gap;
+    protected HeadingTypeEnum headingType = HeadingTypeEnum.HEADING_UPPERCASE;
 
     public SqlFormatter() {
         this(",",1);
@@ -61,12 +62,22 @@ public class SqlFormatter {
             //format output nicely
             StringBuilder out = new StringBuilder();
             in = new BufferedReader(new StringReader(csv)); //reset the reader
+            int lineNum = 0;
             while((row = in.readLine()) != null) {
                 String[] cols = parse(row,delim);
                 for(int i=0; i<cols.length; i++) {
-                    out.append(pad(cols[i],colWidths[i]+gap));
+                    String padded = pad(cols[i],colWidths[i]+gap);
+                    if(lineNum == 0 && headingType == HeadingTypeEnum.HEADING_UPPERCASE) {
+                        padded = padded.toUpperCase();
+                    } else if(lineNum == 0 && headingType == HeadingTypeEnum.HEADING_LOWERCASE) {
+                        padded = padded.toLowerCase();
+                    } else if(lineNum == 0 && headingType == HeadingTypeEnum.HEADING_CAPITALIZED) {
+                        padded = padded.substring(0,1).toUpperCase()+padded.substring(1).toLowerCase();
+                    }
+                    out.append(padded);
                 }
                 out.append('\n');
+                lineNum++;
             }
 //            out.deleteCharAt(out.length()-1);
             return out.toString();

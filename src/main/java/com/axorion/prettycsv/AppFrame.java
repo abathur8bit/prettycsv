@@ -23,10 +23,12 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URL;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 
@@ -39,12 +41,24 @@ public class AppFrame extends JFrame implements InvocationHandler {
     FileDialog fileDialog;      //used by mac
     boolean isMac = false;
     PrettyPrefs prefs;
+    MediaTracker mediaTracker;
+    Color[] colors = {
+            Color.green,
+            Color.yellow,
+            Color.blue,
+            Color.red,
+            Color.white,
+            Color.cyan,
+            Color.magenta,
+            Color.orange,
+    };
+    int colorIndex=0;
 
     public AppFrame() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, IOException, BackingStoreException, InvalidPreferencesFormatException {
         prefs = new PrettyPrefs();
         prefs.loadPrefs();
         formatter = new SqlFormatter(",",prefs.getColumnGap());
-
+        mediaTracker = new MediaTracker(this);
         String lcOSName = System.getProperty("os.name").toLowerCase();
         isMac = lcOSName.startsWith("mac os x");
         if(isMac) {
@@ -56,6 +70,8 @@ public class AppFrame extends JFrame implements InvocationHandler {
         initComponents();
 
         selectCheckbox.setSelected(prefs.isSelectOutput());
+        selectOutputMenuItem.setSelected(prefs.isSelectOutput());
+        selectHeadingMenu();
 
         if(!isMac) {
             customizeNonMac();
@@ -94,6 +110,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
             destField.setText("");
             sourceField.requestFocus();
         } else {
+            formatter.headingType = prefs.getHeadingType();
             String formatted = formatter.format(sourceField.getText());
             destField.setText(formatted);
             destField.setCaretPosition(0);
@@ -173,7 +190,98 @@ public class AppFrame extends JFrame implements InvocationHandler {
     }
 
     private void selectCheckboxActionPerformed(ActionEvent e) {
-        prefs.setSelectOutput(selectCheckbox.isSelected());
+        selectOutputMenuItemActionPerformed(e);
+    }
+
+    private void selectOutputMenuItemActionPerformed(ActionEvent e) {
+        boolean selected = !prefs.isSelectOutput();
+        prefs.setSelectOutput(selected);
+        selectCheckbox.setSelected(selected);
+        selectOutputMenuItem.setSelected(selected);
+
+        prefs.savePrefs();
+    }
+
+    public Image loadImage(String filename) {
+        String target = "/"+filename;
+        URL url = AppFrame.class.getResource(target);
+        System.out.println("ImageUtil filename="+target+" url="+url);
+        if(url == null) {
+            return createPlaceholder(128,128,Color.RED);
+        }
+        Image im = Toolkit.getDefaultToolkit().getImage(url);
+        mediaTracker.addImage(im,0);
+        System.out.println("Waiting for "+filename+" to load");
+        try {
+            long start = System.currentTimeMillis();
+            mediaTracker.waitForAll();
+            long end = System.currentTimeMillis();
+            System.out.println(filename+" loaded in "+(end-start)+"ms");
+        } catch(InterruptedException e) {
+            //ignore
+        }
+        return im;
+    }
+
+    public Image createPlaceholder(int width,int height,Color c) {
+        BufferedImage bi;
+        bi = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = bi.createGraphics();
+        g2.setPaint(colors[colorIndex++]);
+        if(colorIndex >= colors.length) {
+            colorIndex = 0;
+        }
+        g2.fillRect(0,0,width,height);
+        return bi;
+    }
+
+    private void selectHeadingMenu() {
+        switch(prefs.getHeadingType()) {
+            case HEADING_LOWERCASE:
+                onlySelect(headingLowercaseMenuItem);
+                break;
+            case HEADING_UPPERCASE:
+                onlySelect(headingUppercaseMenuItem);
+                break;
+            case HEADING_CAPITALIZED:
+                onlySelect(headingTitlecaseMenuItem);
+                break;
+            case NO_HEADING:
+                onlySelect(noHeadingMenuItem);
+                break;
+        }
+    }
+    private void onlySelect(JMenuItem item) {
+        item.setSelected(true);
+        JMenuItem[] items = {noHeadingMenuItem,headingLowercaseMenuItem,headingUppercaseMenuItem,headingTitlecaseMenuItem};
+        for(JMenuItem m : items) {
+            if(m != item) {
+                m.setSelected(false);
+            }
+        }
+    }
+
+    private void noHeadingMenuItemActionPerformed(ActionEvent e) {
+        prefs.setHeadingType(HeadingTypeEnum.NO_HEADING);
+        onlySelect(noHeadingMenuItem);
+        prefs.savePrefs();
+    }
+
+    private void headingLowercaseMenuItemActionPerformed(ActionEvent e) {
+        prefs.setHeadingType(HeadingTypeEnum.HEADING_LOWERCASE);
+        onlySelect(headingLowercaseMenuItem);
+        prefs.savePrefs();
+    }
+
+    private void headingUppercaseMenuItemActionPerformed(ActionEvent e) {
+        prefs.setHeadingType(HeadingTypeEnum.HEADING_UPPERCASE);
+        onlySelect(headingUppercaseMenuItem);
+        prefs.savePrefs();
+    }
+
+    private void headingTitlecaseMenuItemActionPerformed(ActionEvent e) {
+        prefs.setHeadingType(HeadingTypeEnum.HEADING_CAPITALIZED);
+        onlySelect(headingTitlecaseMenuItem);
         prefs.savePrefs();
     }
 
@@ -185,11 +293,11 @@ public class AppFrame extends JFrame implements InvocationHandler {
         clearMenuItem = new JMenuItem();
         openMenuItem = new JMenuItem();
         menu2 = new JMenu();
-        selectOutputMenuItem = new JMenuItem();
-        noHeadingMenuItem = new JMenuItem();
-        firstRowHeadingMenuItem = new JMenuItem();
-        headingUppercaseMenuItem = new JMenuItem();
-        headingCamelcaseMenuItem = new JMenuItem();
+        selectOutputMenuItem = new JCheckBoxMenuItem();
+        noHeadingMenuItem = new JCheckBoxMenuItem();
+        headingLowercaseMenuItem = new JCheckBoxMenuItem();
+        headingUppercaseMenuItem = new JCheckBoxMenuItem();
+        headingTitlecaseMenuItem = new JCheckBoxMenuItem();
         sourcePanel = new JPanel();
         panel2 = new JPanel();
         label1 = new JLabel();
@@ -243,23 +351,50 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
                 //---- selectOutputMenuItem ----
                 selectOutputMenuItem.setText("Select Output");
+                selectOutputMenuItem.setSelectedIcon(UIManager.getIcon("FileChooser.detailsViewIcon"));
+                selectOutputMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        selectOutputMenuItemActionPerformed(e);
+                    }
+                });
                 menu2.add(selectOutputMenuItem);
+                menu2.addSeparator();
 
                 //---- noHeadingMenuItem ----
                 noHeadingMenuItem.setText("No Headings");
+                noHeadingMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        noHeadingMenuItemActionPerformed(e);
+                    }
+                });
                 menu2.add(noHeadingMenuItem);
 
-                //---- firstRowHeadingMenuItem ----
-                firstRowHeadingMenuItem.setText("Heading Lowercase");
-                menu2.add(firstRowHeadingMenuItem);
+                //---- headingLowercaseMenuItem ----
+                headingLowercaseMenuItem.setText("Heading Lowercase");
+                headingLowercaseMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        headingLowercaseMenuItemActionPerformed(e);
+                    }
+                });
+                menu2.add(headingLowercaseMenuItem);
 
                 //---- headingUppercaseMenuItem ----
                 headingUppercaseMenuItem.setText("Heading Uppercase");
+                headingUppercaseMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        headingUppercaseMenuItemActionPerformed(e);
+                    }
+                });
                 menu2.add(headingUppercaseMenuItem);
 
-                //---- headingCamelcaseMenuItem ----
-                headingCamelcaseMenuItem.setText("Heading Camel case");
-                menu2.add(headingCamelcaseMenuItem);
+                //---- headingTitlecaseMenuItem ----
+                headingTitlecaseMenuItem.setText("Heading Title Case");
+                headingTitlecaseMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        headingTitlecaseMenuItemActionPerformed(e);
+                    }
+                });
+                menu2.add(headingTitlecaseMenuItem);
             }
             menuBar1.add(menu2);
         }
@@ -291,10 +426,11 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
             //======== panel3 ========
             {
+                panel3.setBorder(new EmptyBorder(10, 0, 0, 0));
                 panel3.setLayout(new BorderLayout());
 
                 //---- label2 ----
-                label2.setText("Converted");
+                label2.setText("Formatted");
                 panel3.add(label2, BorderLayout.NORTH);
 
                 //======== destScrollPane ========
@@ -361,11 +497,11 @@ public class AppFrame extends JFrame implements InvocationHandler {
     private JMenuItem clearMenuItem;
     private JMenuItem openMenuItem;
     private JMenu menu2;
-    private JMenuItem selectOutputMenuItem;
-    private JMenuItem noHeadingMenuItem;
-    private JMenuItem firstRowHeadingMenuItem;
-    private JMenuItem headingUppercaseMenuItem;
-    private JMenuItem headingCamelcaseMenuItem;
+    private JCheckBoxMenuItem selectOutputMenuItem;
+    private JCheckBoxMenuItem noHeadingMenuItem;
+    private JCheckBoxMenuItem headingLowercaseMenuItem;
+    private JCheckBoxMenuItem headingUppercaseMenuItem;
+    private JCheckBoxMenuItem headingTitlecaseMenuItem;
     private JPanel sourcePanel;
     private JPanel panel2;
     private JLabel label1;

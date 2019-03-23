@@ -49,7 +49,49 @@ class SqlFormatterTest {
     void format() {
         SqlFormatter target = new SqlFormatter();
         String commaFixture =
+                "ID,NAME,SELECTED,AMOUNT\n"+
+                "1,Foobar,Y,3.14";
+        String resultFixture =
+                "ID NAME   SELECTED AMOUNT \n"+
+                "1  Foobar Y        3.14   \n";
+
+        String result = target.format(commaFixture);
+        assertEquals(resultFixture,result);
+    }
+    @Test
+    void formatUppercaseHeading() {
+        SqlFormatter target = new SqlFormatter();
+        target.headingType = HeadingTypeEnum.HEADING_UPPERCASE;
+        String commaFixture =
                 "Id,Name,Selected,Amount\n"+
+                "1,Foobar,Y,3.14";
+        String resultFixture =
+                "ID NAME   SELECTED AMOUNT \n"+
+                "1  Foobar Y        3.14   \n";
+
+        String result = target.format(commaFixture);
+        assertEquals(resultFixture,result);
+    }
+    @Test
+    void formatLowercaseHeading() {
+        SqlFormatter target = new SqlFormatter();
+        target.headingType = HeadingTypeEnum.HEADING_LOWERCASE;
+        String commaFixture =
+                "Id,Name,Selected,Amount\n"+
+                "1,Foobar,Y,3.14";
+        String resultFixture =
+                "id name   selected amount \n"+
+                "1  Foobar Y        3.14   \n";
+
+        String result = target.format(commaFixture);
+        assertEquals(resultFixture,result);
+    }
+    @Test
+    void formatCapitalizedHeading() {
+        SqlFormatter target = new SqlFormatter();
+        target.headingType = HeadingTypeEnum.HEADING_CAPITALIZED;
+        String commaFixture =
+                "ID,NAME,SELECTED,AMOUNT\n"+
                 "1,Foobar,Y,3.14";
         String resultFixture =
                 "Id Name   Selected Amount \n"+

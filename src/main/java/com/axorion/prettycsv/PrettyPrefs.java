@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.prefs.Preferences;
 
 public class PrettyPrefs {
+
     Preferences prefs;
     boolean selectOutput = true;
     HeadingTypeEnum headingType = HeadingTypeEnum.HEADING_UPPERCASE;
@@ -75,9 +76,3 @@ public class PrettyPrefs {
     }
 }
 
-enum HeadingTypeEnum {
-    NO_HEADING,
-    HEADING_UPPERCASE,
-    HEADING_LOWERCASE,
-    HEADING_CAPITALIZED
-}
