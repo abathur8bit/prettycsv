@@ -246,7 +246,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
             case HEADING_CAPITALIZED:
                 onlySelect(headingTitlecaseMenuItem);
                 break;
-            case NO_HEADING:
+            case HEADING_NOT_CHANGED:
                 onlySelect(noHeadingMenuItem);
                 break;
         }
@@ -262,7 +262,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
     }
 
     private void noHeadingMenuItemActionPerformed(ActionEvent e) {
-        prefs.setHeadingType(HeadingTypeEnum.NO_HEADING);
+        prefs.setHeadingType(HeadingTypeEnum.HEADING_NOT_CHANGED);
         onlySelect(noHeadingMenuItem);
         prefs.savePrefs();
     }
@@ -361,7 +361,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 menu2.addSeparator();
 
                 //---- noHeadingMenuItem ----
-                noHeadingMenuItem.setText("No Headings");
+                noHeadingMenuItem.setText("No Heading Change");
                 noHeadingMenuItem.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         noHeadingMenuItemActionPerformed(e);

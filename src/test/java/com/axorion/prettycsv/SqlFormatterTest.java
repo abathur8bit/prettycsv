@@ -100,4 +100,18 @@ class SqlFormatterTest {
         String result = target.format(commaFixture);
         assertEquals(resultFixture,result);
     }
+    @Test
+    void formatHeadingNotChanged() {
+        SqlFormatter target = new SqlFormatter();
+        target.headingType = HeadingTypeEnum.HEADING_NOT_CHANGED;
+        String commaFixture =
+                "ID,NamE,SelecteD,AmounT\n"+
+                "1,Foobar,Y,3.14";
+        String resultFixture =
+                "ID NamE   SelecteD AmounT \n"+
+                "1  Foobar Y        3.14   \n";
+
+        String result = target.format(commaFixture);
+        assertEquals(resultFixture,result);
+    }
 }
