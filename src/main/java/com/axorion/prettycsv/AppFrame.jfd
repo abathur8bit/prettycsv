@@ -6,6 +6,8 @@ new FormModel {
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
 			"title": "PrettyCSV"
+			addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentMoved", "windowMoved", true ) )
+			addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentResized", "windowResized", true ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
 				"columns": 1
 				"rows": 0

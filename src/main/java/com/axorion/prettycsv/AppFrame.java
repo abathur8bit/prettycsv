@@ -23,6 +23,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -56,8 +58,9 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
     public AppFrame(String title) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, IOException, BackingStoreException, InvalidPreferencesFormatException {
         super(title);
-        prefs = new PrettyPrefs();
+        prefs = new PrettyPrefs(this);
         prefs.loadPrefs();
+
         formatter = new SqlFormatter(",",prefs.getColumnGap());
         mediaTracker = new MediaTracker(this);
         String lcOSName = System.getProperty("os.name").toLowerCase();
@@ -116,10 +119,11 @@ public class AppFrame extends JFrame implements InvocationHandler {
             formatter.headingType = prefs.getHeadingType();
             String formatted = formatter.format(sourceField.getText());
             destField.setText(formatted);
-            destField.setCaretPosition(0);
             if(selectCheckbox.isSelected()) {
-                destField.setSelectionStart(0);
                 destField.setSelectionEnd(formatted.length());
+                destField.setSelectionStart(0);
+            } else {
+                destField.setCaretPosition(0);
             }
             destField.requestFocus();
         }
@@ -288,6 +292,14 @@ public class AppFrame extends JFrame implements InvocationHandler {
         prefs.savePrefs();
     }
 
+    private void windowMoved(ComponentEvent e) {
+        prefs.savePrefs();
+    }
+
+    private void windowResized(ComponentEvent e) {
+        prefs.savePrefs();
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
@@ -318,6 +330,16 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
         //======== this ========
         setTitle("PrettyCSV");
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                windowMoved(e);
+            }
+            @Override
+            public void componentResized(ComponentEvent e) {
+                windowResized(e);
+            }
+        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 

@@ -19,6 +19,7 @@
 package com.axorion.prettycsv;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * Pretty CSV PrettyCSV main entry point.
@@ -29,14 +30,26 @@ public class PrettyCSV
 
     public static void main( String[] args ) throws Exception {
         instance = new AppFrame("Pretty CSV");
+        if(instance.prefs.getBounds() != null) {
+            Rectangle maxBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+            if(maxBounds.contains(instance.prefs.getBounds())) {
+                instance.setBounds(instance.prefs.getBounds());
+            } else {
+                setDefaultSize();   //part or all of the window is positioned outside of the screen
+            }
+        } else {
+            setDefaultSize();
+        }
+        instance.setVisible(true);
+    }
+
+    public static void setDefaultSize() {
         instance.setSize(640,480);
         instance.setLocationRelativeTo(null);
-        instance.setVisible(true);
     }
 
     public static void handleError(String msg,Exception e) {
         e.printStackTrace();
         JOptionPane.showMessageDialog(instance,msg,"Error",JOptionPane.ERROR_MESSAGE);
     }
-
 }
