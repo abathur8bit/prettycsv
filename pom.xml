@@ -6,7 +6,30 @@
   <packaging>jar</packaging>
   <version>1.0</version>
   <name>prettycsv</name>
-  <url>http://maven.apache.org</url>
+  <url>http://8BitCoder.com</url>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/java/img</directory>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>com.axorion.prettycsv.App</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

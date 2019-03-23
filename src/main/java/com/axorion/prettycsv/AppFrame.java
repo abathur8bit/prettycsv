@@ -19,23 +19,34 @@
 package com.axorion.prettycsv;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.InvalidPreferencesFormatException;
 
 /**
  * @author Lee Patterson
  */
 public class AppFrame extends JFrame implements InvocationHandler {
-    SqlFormatter formatter = new SqlFormatter();
+    SqlFormatter formatter;
     JFileChooser fileChooser;   //used by windows
     FileDialog fileDialog;      //used by mac
     boolean isMac = false;
+    PrettyPrefs prefs;
 
-    public AppFrame() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+    public AppFrame() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, IOException, BackingStoreException, InvalidPreferencesFormatException {
+        prefs = new PrettyPrefs();
+        prefs.loadPrefs();
+        formatter = new SqlFormatter(",",prefs.getColumnGap());
+
         String lcOSName = System.getProperty("os.name").toLowerCase();
         isMac = lcOSName.startsWith("mac os x");
         if(isMac) {
@@ -45,6 +56,8 @@ public class AppFrame extends JFrame implements InvocationHandler {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initComponents();
+
+        selectCheckbox.setSelected(prefs.isSelectOutput());
 
         if(!isMac) {
             customizeNonMac();
@@ -74,7 +87,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
             appUtilsObj.invoke(null,new Object[] {methodHandler});
 
         } catch(Exception e) {
-            e.printStackTrace();
+            App.handleError("Error during application initialization",e);
         }
     }
 
@@ -83,7 +96,6 @@ public class AppFrame extends JFrame implements InvocationHandler {
             destField.setText("");
             sourceField.requestFocus();
         } else {
-
             String formatted = formatter.format(sourceField.getText());
             destField.setText(formatted);
             destField.setCaretPosition(0);
@@ -93,6 +105,12 @@ public class AppFrame extends JFrame implements InvocationHandler {
             }
             destField.requestFocus();
         }
+    }
+
+    private void clearMenuItemActionPerformed(ActionEvent e) {
+        sourceField.setText("");
+        destField.setText("");
+        sourceField.requestFocus();
     }
 
     private void exitButtonActionPerformed(ActionEvent e) {
@@ -156,6 +174,11 @@ public class AppFrame extends JFrame implements InvocationHandler {
         openFileDialog();
     }
 
+    private void selectCheckboxStateChanged(ChangeEvent e) {
+        prefs.setSelectOutput(selectCheckbox.isSelected());
+        prefs.savePrefs();
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
@@ -164,22 +187,29 @@ public class AppFrame extends JFrame implements InvocationHandler {
         clearMenuItem = new JMenuItem();
         openMenuItem = new JMenuItem();
         menu2 = new JMenu();
-        menuItem3 = new JMenuItem();
-        menuItem4 = new JMenuItem();
-        menuItem5 = new JMenuItem();
-        menuItem6 = new JMenuItem();
-        panel1 = new JPanel();
-        scrollPane1 = new JScrollPane();
-        sourceField = new JTextArea();
-        scrollPane2 = new JScrollPane();
-        destField = new JTextArea();
+        selectOutputMenuItem = new JMenuItem();
+        noHeadingMenuItem = new JMenuItem();
+        firstRowHeadingMenuItem = new JMenuItem();
+        headingUppercaseMenuItem = new JMenuItem();
+        headingCamelcaseMenuItem = new JMenuItem();
+        sourcePanel = new JPanel();
         panel2 = new JPanel();
-        selectCheckbox = new JCheckBox();
+        label1 = new JLabel();
+        sourceScrollPane = new JScrollPane();
+        sourceField = new JTextArea();
         panel3 = new JPanel();
+        label2 = new JLabel();
+        destScrollPane = new JScrollPane();
+        destField = new JTextArea();
+        controlsPanel = new JPanel();
+        selectCheckbox = new JCheckBox();
+        buttonPanel = new JPanel();
         convertButton = new JButton();
         exitButton = new JButton();
+        label3 = new JLabel();
 
         //======== this ========
+        setTitle("Pretty CSV");
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
@@ -192,6 +222,11 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
                 //---- clearMenuItem ----
                 clearMenuItem.setText("Clear");
+                clearMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        clearMenuItemActionPerformed(e);
+                    }
+                });
                 fileMenu.add(clearMenuItem);
 
                 //---- openMenuItem ----
@@ -209,71 +244,101 @@ public class AppFrame extends JFrame implements InvocationHandler {
             {
                 menu2.setText("View");
 
-                //---- menuItem3 ----
-                menuItem3.setText("Select Output");
-                menu2.add(menuItem3);
+                //---- selectOutputMenuItem ----
+                selectOutputMenuItem.setText("Select Output");
+                menu2.add(selectOutputMenuItem);
 
-                //---- menuItem4 ----
-                menuItem4.setText("First Row Heading");
-                menu2.add(menuItem4);
+                //---- noHeadingMenuItem ----
+                noHeadingMenuItem.setText("No Headings");
+                menu2.add(noHeadingMenuItem);
 
-                //---- menuItem5 ----
-                menuItem5.setText("Heading Uppercase");
-                menu2.add(menuItem5);
+                //---- firstRowHeadingMenuItem ----
+                firstRowHeadingMenuItem.setText("Heading Lowercase");
+                menu2.add(firstRowHeadingMenuItem);
 
-                //---- menuItem6 ----
-                menuItem6.setText("Heading Camel case");
-                menu2.add(menuItem6);
+                //---- headingUppercaseMenuItem ----
+                headingUppercaseMenuItem.setText("Heading Uppercase");
+                menu2.add(headingUppercaseMenuItem);
+
+                //---- headingCamelcaseMenuItem ----
+                headingCamelcaseMenuItem.setText("Heading Camel case");
+                menu2.add(headingCamelcaseMenuItem);
             }
             menuBar1.add(menu2);
         }
         setJMenuBar(menuBar1);
 
-        //======== panel1 ========
+        //======== sourcePanel ========
         {
-            panel1.setLayout(new GridLayout(0, 1));
+            sourcePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+            sourcePanel.setLayout(new GridLayout(0, 1));
 
-            //======== scrollPane1 ========
+            //======== panel2 ========
             {
+                panel2.setLayout(new BorderLayout());
 
-                //---- sourceField ----
-                sourceField.setFont(new Font("Courier", Font.PLAIN, 13));
-                scrollPane1.setViewportView(sourceField);
+                //---- label1 ----
+                label1.setText("Source");
+                panel2.add(label1, BorderLayout.NORTH);
+
+                //======== sourceScrollPane ========
+                {
+
+                    //---- sourceField ----
+                    sourceField.setFont(new Font("Courier", Font.PLAIN, 13));
+                    sourceScrollPane.setViewportView(sourceField);
+                }
+                panel2.add(sourceScrollPane, BorderLayout.CENTER);
             }
-            panel1.add(scrollPane1);
-
-            //======== scrollPane2 ========
-            {
-
-                //---- destField ----
-                destField.setFont(new Font("Courier", Font.PLAIN, 13));
-                scrollPane2.setViewportView(destField);
-            }
-            panel1.add(scrollPane2);
-        }
-        contentPane.add(panel1, BorderLayout.CENTER);
-
-        //======== panel2 ========
-        {
-            panel2.setLayout(new BorderLayout());
-
-            //---- selectCheckbox ----
-            selectCheckbox.setText("Select Output Text");
-            panel2.add(selectCheckbox, BorderLayout.WEST);
+            sourcePanel.add(panel2);
 
             //======== panel3 ========
             {
-                panel3.setLayout(new FlowLayout());
+                panel3.setLayout(new BorderLayout());
+
+                //---- label2 ----
+                label2.setText("Converted");
+                panel3.add(label2, BorderLayout.NORTH);
+
+                //======== destScrollPane ========
+                {
+
+                    //---- destField ----
+                    destField.setFont(new Font("Courier", Font.PLAIN, 13));
+                    destScrollPane.setViewportView(destField);
+                }
+                panel3.add(destScrollPane, BorderLayout.CENTER);
+            }
+            sourcePanel.add(panel3);
+        }
+        contentPane.add(sourcePanel, BorderLayout.CENTER);
+
+        //======== controlsPanel ========
+        {
+            controlsPanel.setLayout(new BorderLayout());
+
+            //---- selectCheckbox ----
+            selectCheckbox.setText("Select Output Text");
+            selectCheckbox.addChangeListener(new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                    selectCheckboxStateChanged(e);
+                }
+            });
+            controlsPanel.add(selectCheckbox, BorderLayout.WEST);
+
+            //======== buttonPanel ========
+            {
+                buttonPanel.setLayout(new FlowLayout());
 
                 //---- convertButton ----
-                convertButton.setText("Convert");
+                convertButton.setText("Format");
                 convertButton.setMnemonic('C');
                 convertButton.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         convertButtonActionPerformed(e);
                     }
                 });
-                panel3.add(convertButton);
+                buttonPanel.add(convertButton);
 
                 //---- exitButton ----
                 exitButton.setText("Exit");
@@ -282,11 +347,17 @@ public class AppFrame extends JFrame implements InvocationHandler {
                         exitButtonActionPerformed(e);
                     }
                 });
-                panel3.add(exitButton);
+                buttonPanel.add(exitButton);
             }
-            panel2.add(panel3, BorderLayout.EAST);
+            controlsPanel.add(buttonPanel, BorderLayout.EAST);
+
+            //---- label3 ----
+            label3.setText("Pretty CSV");
+            label3.setHorizontalAlignment(SwingConstants.CENTER);
+            label3.setFont(new Font("Courier", Font.PLAIN, 14));
+            controlsPanel.add(label3, BorderLayout.CENTER);
         }
-        contentPane.add(panel2, BorderLayout.SOUTH);
+        contentPane.add(controlsPanel, BorderLayout.SOUTH);
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -299,19 +370,25 @@ public class AppFrame extends JFrame implements InvocationHandler {
     private JMenuItem clearMenuItem;
     private JMenuItem openMenuItem;
     private JMenu menu2;
-    private JMenuItem menuItem3;
-    private JMenuItem menuItem4;
-    private JMenuItem menuItem5;
-    private JMenuItem menuItem6;
-    private JPanel panel1;
-    private JScrollPane scrollPane1;
-    private JTextArea sourceField;
-    private JScrollPane scrollPane2;
-    private JTextArea destField;
+    private JMenuItem selectOutputMenuItem;
+    private JMenuItem noHeadingMenuItem;
+    private JMenuItem firstRowHeadingMenuItem;
+    private JMenuItem headingUppercaseMenuItem;
+    private JMenuItem headingCamelcaseMenuItem;
+    private JPanel sourcePanel;
     private JPanel panel2;
-    private JCheckBox selectCheckbox;
+    private JLabel label1;
+    private JScrollPane sourceScrollPane;
+    private JTextArea sourceField;
     private JPanel panel3;
+    private JLabel label2;
+    private JScrollPane destScrollPane;
+    private JTextArea destField;
+    private JPanel controlsPanel;
+    private JCheckBox selectCheckbox;
+    private JPanel buttonPanel;
     private JButton convertButton;
     private JButton exitButton;
+    private JLabel label3;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
