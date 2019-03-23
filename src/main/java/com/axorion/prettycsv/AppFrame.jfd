@@ -56,7 +56,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JCheckBox" ) {
 					name: "selectCheckbox"
 					"text": "Select Output Text"
-					addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "selectCheckboxStateChanged", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectCheckboxActionPerformed", true ) )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "West"
 				} )

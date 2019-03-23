@@ -20,8 +20,6 @@ package com.axorion.prettycsv;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -174,7 +172,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
         openFileDialog();
     }
 
-    private void selectCheckboxStateChanged(ChangeEvent e) {
+    private void selectCheckboxActionPerformed(ActionEvent e) {
         prefs.setSelectOutput(selectCheckbox.isSelected());
         prefs.savePrefs();
     }
@@ -319,9 +317,9 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
             //---- selectCheckbox ----
             selectCheckbox.setText("Select Output Text");
-            selectCheckbox.addChangeListener(new ChangeListener() {
-                public void stateChanged(ChangeEvent e) {
-                    selectCheckboxStateChanged(e);
+            selectCheckbox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    selectCheckboxActionPerformed(e);
                 }
             });
             controlsPanel.add(selectCheckbox, BorderLayout.WEST);
