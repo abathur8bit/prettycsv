@@ -15,8 +15,10 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "iconLabel"
 					"text": "128x128"
+					"horizontalAlignment": 0
+					"preferredSize": new java.awt.Dimension( 128, 128 )
 				}, new FormLayoutConstraints( class java.lang.String ) {
-					"value": "West"
+					"value": "North"
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) ) {
 					name: "panel1"
@@ -30,6 +32,11 @@ new FormModel {
 							"text": "PrettyCSV"
 							"horizontalAlignment": 0
 							"font": new java.awt.Font( ".SF NS Text", 0, 26 )
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label4"
+							"text": "Version B.1"
+							"horizontalAlignment": 0
 						} )
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "label2"
@@ -71,7 +78,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 400, 300 )
+			"size": new java.awt.Dimension( 400, 350 )
 		} )
 	}
 }

@@ -43,6 +43,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
     FileDialog fileDialog;      //used by mac
     boolean isMac = false;
     PrettyPrefs prefs;
+    JDialog optionsDialog;
     MediaTracker mediaTracker;
     Color[] colors = {
             Color.green,
@@ -109,6 +110,10 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 PrettyCSV.handleError("Error during application initialization",e);
             }
         }
+    }
+
+    public PrettyPrefs getPrefs() {
+        return prefs;
     }
 
     private void convertButtonActionPerformed(ActionEvent e) {
@@ -179,9 +184,16 @@ public class AppFrame extends JFrame implements InvocationHandler {
     }
 
     private void optionsSelected() {
-        JOptionPane.showMessageDialog(this,"No yet implemented");
-//            JDialog dlg = new OptionsDialog(this);
-//            dlg.setVisible(true);
+        if(optionsDialog == null) {
+            optionsDialog = new OptionsDialog(this,prefs);
+        }
+
+        if(!optionsDialog.isVisible()) {
+            optionsDialog.setVisible(true);
+            selectCheckbox.setSelected(prefs.isSelectOutput());
+            selectOutputMenuItem.setSelected(prefs.isSelectOutput());
+            selectHeadingMenu();
+        }
     }
 
     private void openFileDialog() {
@@ -309,10 +321,10 @@ public class AppFrame extends JFrame implements InvocationHandler {
         openMenuItem = new JMenuItem();
         menu2 = new JMenu();
         selectOutputMenuItem = new JCheckBoxMenuItem();
-        noHeadingMenuItem = new JCheckBoxMenuItem();
-        headingLowercaseMenuItem = new JCheckBoxMenuItem();
         headingUppercaseMenuItem = new JCheckBoxMenuItem();
+        headingLowercaseMenuItem = new JCheckBoxMenuItem();
         headingTitlecaseMenuItem = new JCheckBoxMenuItem();
+        noHeadingMenuItem = new JCheckBoxMenuItem();
         sourcePanel = new JPanel();
         panel2 = new JPanel();
         label1 = new JLabel();
@@ -385,14 +397,14 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 menu2.add(selectOutputMenuItem);
                 menu2.addSeparator();
 
-                //---- noHeadingMenuItem ----
-                noHeadingMenuItem.setText("No Heading Change");
-                noHeadingMenuItem.addActionListener(new ActionListener() {
+                //---- headingUppercaseMenuItem ----
+                headingUppercaseMenuItem.setText("Heading Uppercase");
+                headingUppercaseMenuItem.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        noHeadingMenuItemActionPerformed(e);
+                        headingUppercaseMenuItemActionPerformed(e);
                     }
                 });
-                menu2.add(noHeadingMenuItem);
+                menu2.add(headingUppercaseMenuItem);
 
                 //---- headingLowercaseMenuItem ----
                 headingLowercaseMenuItem.setText("Heading Lowercase");
@@ -403,15 +415,6 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 });
                 menu2.add(headingLowercaseMenuItem);
 
-                //---- headingUppercaseMenuItem ----
-                headingUppercaseMenuItem.setText("Heading Uppercase");
-                headingUppercaseMenuItem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        headingUppercaseMenuItemActionPerformed(e);
-                    }
-                });
-                menu2.add(headingUppercaseMenuItem);
-
                 //---- headingTitlecaseMenuItem ----
                 headingTitlecaseMenuItem.setText("Heading Title Case");
                 headingTitlecaseMenuItem.addActionListener(new ActionListener() {
@@ -420,6 +423,15 @@ public class AppFrame extends JFrame implements InvocationHandler {
                     }
                 });
                 menu2.add(headingTitlecaseMenuItem);
+
+                //---- noHeadingMenuItem ----
+                noHeadingMenuItem.setText("No Heading Change");
+                noHeadingMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        noHeadingMenuItemActionPerformed(e);
+                    }
+                });
+                menu2.add(noHeadingMenuItem);
             }
             menuBar1.add(menu2);
         }
@@ -523,10 +535,10 @@ public class AppFrame extends JFrame implements InvocationHandler {
     private JMenuItem openMenuItem;
     private JMenu menu2;
     private JCheckBoxMenuItem selectOutputMenuItem;
-    private JCheckBoxMenuItem noHeadingMenuItem;
-    private JCheckBoxMenuItem headingLowercaseMenuItem;
     private JCheckBoxMenuItem headingUppercaseMenuItem;
+    private JCheckBoxMenuItem headingLowercaseMenuItem;
     private JCheckBoxMenuItem headingTitlecaseMenuItem;
+    private JCheckBoxMenuItem noHeadingMenuItem;
     private JPanel sourcePanel;
     private JPanel panel2;
     private JLabel label1;

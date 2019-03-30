@@ -31,7 +31,7 @@ public class AboutDialog extends JDialog {
     public AboutDialog(AppFrame owner) {
         super(owner);
         initComponents();
-        iconLabel.setIcon(new ImageIcon(owner.loadImage("pcsv-macOS_128.png")));
+        iconLabel.setIcon(new ImageIcon(owner.loadImage("icon.png")));
         iconLabel.setText("");
     }
 
@@ -52,6 +52,7 @@ public class AboutDialog extends JDialog {
         panel1 = new JPanel();
         contentPanel = new JPanel();
         label1 = new JLabel();
+        label4 = new JLabel();
         label2 = new JLabel();
         label3 = new JLabel();
         buttonBar = new JPanel();
@@ -71,7 +72,9 @@ public class AboutDialog extends JDialog {
 
             //---- iconLabel ----
             iconLabel.setText("128x128");
-            dialogPane.add(iconLabel, BorderLayout.WEST);
+            iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            iconLabel.setPreferredSize(new Dimension(128, 128));
+            dialogPane.add(iconLabel, BorderLayout.NORTH);
 
             //======== panel1 ========
             {
@@ -86,6 +89,11 @@ public class AboutDialog extends JDialog {
                     label1.setHorizontalAlignment(SwingConstants.CENTER);
                     label1.setFont(new Font(".SF NS Text", Font.PLAIN, 26));
                     contentPanel.add(label1);
+
+                    //---- label4 ----
+                    label4.setText("Version B.1");
+                    label4.setHorizontalAlignment(SwingConstants.CENTER);
+                    contentPanel.add(label4);
 
                     //---- label2 ----
                     label2.setText("By Lee Patterson");
@@ -124,7 +132,7 @@ public class AboutDialog extends JDialog {
             dialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
         contentPane.add(dialogPane, BorderLayout.CENTER);
-        setSize(400, 300);
+        setSize(400, 350);
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
@@ -136,6 +144,7 @@ public class AboutDialog extends JDialog {
     private JPanel panel1;
     private JPanel contentPanel;
     private JLabel label1;
+    private JLabel label4;
     private JLabel label2;
     private JLabel label3;
     private JPanel buttonBar;

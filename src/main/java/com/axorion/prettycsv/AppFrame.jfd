@@ -111,9 +111,9 @@ new FormModel {
 						name: "separator1"
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
-						name: "noHeadingMenuItem"
-						"text": "No Heading Change"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "noHeadingMenuItemActionPerformed", true ) )
+						name: "headingUppercaseMenuItem"
+						"text": "Heading Uppercase"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "headingUppercaseMenuItemActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "headingLowercaseMenuItem"
@@ -121,14 +121,14 @@ new FormModel {
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "headingLowercaseMenuItemActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
-						name: "headingUppercaseMenuItem"
-						"text": "Heading Uppercase"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "headingUppercaseMenuItemActionPerformed", true ) )
-					} )
-					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "headingTitlecaseMenuItem"
 						"text": "Heading Title Case"
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "headingTitlecaseMenuItemActionPerformed", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
+						name: "noHeadingMenuItem"
+						"text": "No Heading Change"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "noHeadingMenuItemActionPerformed", true ) )
 					} )
 				} )
 			}
