@@ -4,7 +4,7 @@
   <groupId>com.axorion.app</groupId>
   <artifactId>prettycsv</artifactId>
   <packaging>jar</packaging>
-  <version>B.1</version>
+  <version>1.0</version>
   <name>prettycsv</name>
   <url>http://8BitCoder.com</url>
 

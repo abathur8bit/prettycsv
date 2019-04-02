@@ -23,6 +23,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URI;
 
 /**
  * @author Lee Patterson
@@ -44,6 +47,16 @@ public class AboutDialog extends JDialog {
         setVisible(false);
     }
 
+    private void urlLabelMouseClicked(MouseEvent e) {
+        try {
+            if(Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI("http://8BitCoder.com/prettycsv"));
+            }
+        } catch(Exception ex) {
+            //ignore
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
@@ -53,8 +66,7 @@ public class AboutDialog extends JDialog {
         contentPanel = new JPanel();
         label1 = new JLabel();
         label4 = new JLabel();
-        label2 = new JLabel();
-        label3 = new JLabel();
+        urlLabel = new JLabel();
         buttonBar = new JPanel();
         okButton = new JButton();
 
@@ -91,21 +103,21 @@ public class AboutDialog extends JDialog {
                     contentPanel.add(label1);
 
                     //---- label4 ----
-                    label4.setText("Version B.1");
+                    label4.setText("Version 1.0");
                     label4.setHorizontalAlignment(SwingConstants.CENTER);
                     contentPanel.add(label4);
 
-                    //---- label2 ----
-                    label2.setText("By Lee Patterson");
-                    label2.setHorizontalTextPosition(SwingConstants.CENTER);
-                    label2.setHorizontalAlignment(SwingConstants.CENTER);
-                    contentPanel.add(label2);
-
-                    //---- label3 ----
-                    label3.setText("http://8BitCoder.com");
-                    label3.setHorizontalAlignment(SwingConstants.CENTER);
-                    label3.setFont(new Font(".SF NS Text", Font.PLAIN, 10));
-                    contentPanel.add(label3);
+                    //---- urlLabel ----
+                    urlLabel.setText("<html><center>By Lee Patterson<br/><font color=\"red\">8</font>BitCoder.com</cener></html>");
+                    urlLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+                    urlLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                    urlLabel.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            urlLabelMouseClicked(e);
+                        }
+                    });
+                    contentPanel.add(urlLabel);
                 }
                 panel1.add(contentPanel);
             }
@@ -145,8 +157,7 @@ public class AboutDialog extends JDialog {
     private JPanel contentPanel;
     private JLabel label1;
     private JLabel label4;
-    private JLabel label2;
-    private JLabel label3;
+    private JLabel urlLabel;
     private JPanel buttonBar;
     private JButton okButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables

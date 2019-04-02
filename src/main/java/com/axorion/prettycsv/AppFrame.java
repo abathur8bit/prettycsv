@@ -43,7 +43,9 @@ public class AppFrame extends JFrame implements InvocationHandler {
     FileDialog fileDialog;      //used by mac
     boolean isMac = false;
     PrettyPrefs prefs;
-    JDialog optionsDialog;
+    OptionsDialog optionsDialog;
+    HelpDialog helpDialog;
+    AboutDialog aboutDialog;
     MediaTracker mediaTracker;
     Color[] colors = {
             Color.green,
@@ -62,7 +64,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
         prefs = new PrettyPrefs(this);
         prefs.loadPrefs();
 
-        formatter = new SqlFormatter(",",prefs.getColumnGap());
+        formatter = new SqlFormatter(",\t",prefs.getColumnGap());
         mediaTracker = new MediaTracker(this);
         String lcOSName = System.getProperty("os.name").toLowerCase();
         isMac = lcOSName.startsWith("mac os x");
@@ -89,6 +91,8 @@ public class AppFrame extends JFrame implements InvocationHandler {
         fileChooser.addChoosableFileFilter(new OpenFileFilter("txt","Tab Separated") );
 
         if(isMac) {
+            helpMenu.remove(aboutMenuItem); //no about shown in the help menu, shows under app name menu at left of screen
+
             try {
                 Class quitHandlerClass = Class.forName("com.apple.mrj.MRJQuitHandler");
                 Class aboutHandlerClass = Class.forName("com.apple.mrj.MRJAboutHandler");
@@ -122,6 +126,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
             sourceField.requestFocus();
         } else {
             formatter.headingType = prefs.getHeadingType();
+            formatter.gap = prefs.getColumnGap();
             String formatted = formatter.format(sourceField.getText());
             destField.setText(formatted);
             if(selectCheckbox.isSelected()) {
@@ -174,8 +179,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
         if (meth.getName().equals("handleQuit")) {
             exitButtonActionPerformed(null);
         } else if (meth.getName().equals("handleAbout")) {
-            AboutDialog dlg = new AboutDialog(this);
-            dlg.setVisible(true);
+            aboutMenuItemActionPerformed(null);
         } else if (meth.getName().equals("handlePrefs")) {
             optionsSelected();
         }
@@ -184,12 +188,10 @@ public class AppFrame extends JFrame implements InvocationHandler {
     }
 
     private void optionsSelected() {
-        if(optionsDialog == null) {
-            optionsDialog = new OptionsDialog(this,prefs);
-        }
+        OptionsDialog dlg = getOptionsDialog();
 
-        if(!optionsDialog.isVisible()) {
-            optionsDialog.setVisible(true);
+        if(!dlg.isVisible()) {
+            dlg.setVisible(true);
             selectCheckbox.setSelected(prefs.isSelectOutput());
             selectOutputMenuItem.setSelected(prefs.isSelectOutput());
             selectHeadingMenu();
@@ -312,19 +314,55 @@ public class AppFrame extends JFrame implements InvocationHandler {
         prefs.savePrefs();
     }
 
+    private void prettycsvHelpMenuItemActionPerformed(ActionEvent e) {
+        if(!getHelpDialog().isVisible()) {
+            getHelpDialog().setVisible(true);
+        }
+    }
+
+    private void aboutMenuItemActionPerformed(ActionEvent e) {
+        AboutDialog dlg = getAboutDialog();
+        if(!dlg.isVisible()) {
+            dlg.setVisible(true);
+        }
+    }
+
+    public JDialog getHelpDialog() {
+        if(helpDialog == null) {
+            helpDialog = new HelpDialog(this);
+        }
+        return helpDialog;
+    }
+
+    public OptionsDialog getOptionsDialog() {
+        if(optionsDialog == null) {
+            optionsDialog = new OptionsDialog(this,prefs);
+        }
+        return optionsDialog;
+    }
+
+    public AboutDialog getAboutDialog() {
+        if(aboutDialog == null) {
+            aboutDialog = new AboutDialog(this);
+        }
+        return aboutDialog;
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         // Generated using JFormDesigner non-commercial license
         menuBar1 = new JMenuBar();
         fileMenu = new JMenu();
         clearMenuItem = new JMenuItem();
-        openMenuItem = new JMenuItem();
         menu2 = new JMenu();
         selectOutputMenuItem = new JCheckBoxMenuItem();
         headingUppercaseMenuItem = new JCheckBoxMenuItem();
         headingLowercaseMenuItem = new JCheckBoxMenuItem();
         headingTitlecaseMenuItem = new JCheckBoxMenuItem();
         noHeadingMenuItem = new JCheckBoxMenuItem();
+        helpMenu = new JMenu();
+        prettycsvHelpMenuItem = new JMenuItem();
+        aboutMenuItem = new JMenuItem();
         sourcePanel = new JPanel();
         panel2 = new JPanel();
         label1 = new JLabel();
@@ -370,15 +408,6 @@ public class AppFrame extends JFrame implements InvocationHandler {
                     }
                 });
                 fileMenu.add(clearMenuItem);
-
-                //---- openMenuItem ----
-                openMenuItem.setText("Open...");
-                openMenuItem.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        openMenuItemActionPerformed(e);
-                    }
-                });
-                fileMenu.add(openMenuItem);
             }
             menuBar1.add(fileMenu);
 
@@ -434,6 +463,30 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 menu2.add(noHeadingMenuItem);
             }
             menuBar1.add(menu2);
+
+            //======== helpMenu ========
+            {
+                helpMenu.setText("Help");
+
+                //---- prettycsvHelpMenuItem ----
+                prettycsvHelpMenuItem.setText("PrettyCSV Help");
+                prettycsvHelpMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        prettycsvHelpMenuItemActionPerformed(e);
+                    }
+                });
+                helpMenu.add(prettycsvHelpMenuItem);
+
+                //---- aboutMenuItem ----
+                aboutMenuItem.setText("About...");
+                aboutMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        aboutMenuItemActionPerformed(e);
+                    }
+                });
+                helpMenu.add(aboutMenuItem);
+            }
+            menuBar1.add(helpMenu);
         }
         setJMenuBar(menuBar1);
 
@@ -532,13 +585,15 @@ public class AppFrame extends JFrame implements InvocationHandler {
     private JMenuBar menuBar1;
     private JMenu fileMenu;
     private JMenuItem clearMenuItem;
-    private JMenuItem openMenuItem;
     private JMenu menu2;
     private JCheckBoxMenuItem selectOutputMenuItem;
     private JCheckBoxMenuItem headingUppercaseMenuItem;
     private JCheckBoxMenuItem headingLowercaseMenuItem;
     private JCheckBoxMenuItem headingTitlecaseMenuItem;
     private JCheckBoxMenuItem noHeadingMenuItem;
+    private JMenu helpMenu;
+    private JMenuItem prettycsvHelpMenuItem;
+    private JMenuItem aboutMenuItem;
     private JPanel sourcePanel;
     private JPanel panel2;
     private JLabel label1;

@@ -3,6 +3,13 @@
 # $1 - first param
 # $# - number of command line params
 
+if [ $# != 1 ]; then
+    echo "makeapp <version>";
+    echo "Example: ./makeapp B.1"
+else
+
+VER=$1
+
 # Deal with icon image
 #cd images
 echo `pwd`
@@ -14,7 +21,7 @@ iconutil --convert icns PrettyCSV.iconset
 # Create the JAR file
 cp images/pcsv-macOS_128.png src/main/java/img/icon.png
 mvn package
-cp -v target/prettycsv-1.0.jar ~/Public/prettycsv-1.0.jar
+cp -v target/prettycsv-$VER.jar ~/Public/prettycsv-$VER.jar
 
 # Make the Mac application bundle
 javapackager -deploy \
@@ -25,6 +32,9 @@ javapackager -deploy \
     -Bicon=PrettyCSV.icns \
     -outdir dist \
     -outfile PrettyCSV.app \
-    -srcfiles target/prettycsv-1.0.jar
+    -srcfiles target/prettycsv-$VER.jar
 
-echo If you wanted your icon updated, run makeicons.sh icon.png pcsv from the images directory
+cp -v target/prettycsv-$VER.jar ~/Public/prettycsv/target
+echo Run makeexe.bat on Windows to create Windows version.
+# echo If you wanted your icon updated, run makeicons.sh icon.png pcsv from the images directory
+fi

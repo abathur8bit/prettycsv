@@ -29,7 +29,7 @@ public class SqlFormatter {
     protected HeadingTypeEnum headingType = HeadingTypeEnum.HEADING_UPPERCASE;
 
     public SqlFormatter() {
-        this(",",1);
+        this(",\t",1);
     }
 
     public SqlFormatter(String delim,int gap) {
@@ -41,7 +41,7 @@ public class SqlFormatter {
         try {
             BufferedReader in = new BufferedReader(new StringReader(csv));
             String header = in.readLine();
-            String[] headings = parse(header,",");
+            String[] headings = parse(header,delim);
             int[] colWidths = new int[headings.length];
             for(int i=0; i<headings.length; i++) {
                 colWidths[i] = headings[i].length();
@@ -50,7 +50,7 @@ public class SqlFormatter {
             //now find the longest column lengths
             String row;
             while((row = in.readLine()) != null) {
-                String[] cols = parse(row,",");
+                String[] cols = parse(row,delim);
                 for(int i=0; i<colWidths.length; i++) {
                     final int width = cols[i].length();
                     if(width > colWidths[i]) {
