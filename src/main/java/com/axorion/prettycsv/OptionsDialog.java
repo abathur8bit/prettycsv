@@ -13,6 +13,8 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * @author Lee Patterson
@@ -32,10 +34,14 @@ public class OptionsDialog extends JDialog {
         formatter.headingType = prefs.getHeadingType();
 
         initComponents();
+        setupDialog();
+    }
 
+    private void setupDialog() {
         spacesSpinner.setValue(prefs.getColumnGap());
         selectHeadingType();
         selectOutputCheckBox.setSelected(prefs.isSelectOutput());
+        copyToClipboardCheckbox.setSelected(prefs.isCopyToClipboard());
     }
 
     private void selectHeadingType() {
@@ -91,8 +97,15 @@ public class OptionsDialog extends JDialog {
     }
 
     private void selectOutputCheckBoxActionPerformed(ActionEvent e) {
-        boolean selected = selectOutputCheckBox.isSelected();
-        prefs.setSelectOutput(selected);
+        prefs.setSelectOutput(selectOutputCheckBox.isSelected());
+    }
+
+    private void copyToClipboardCheckboxActionPerformed(ActionEvent e) {
+        prefs.setCopyToClipboard(copyToClipboardCheckbox.isSelected());
+    }
+
+    private void dialogWindowActivated(WindowEvent e) {
+        setupDialog();
     }
 
     private void initComponents() {
@@ -120,6 +133,12 @@ public class OptionsDialog extends JDialog {
         //======== this ========
         setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         setResizable(false);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowActivated(WindowEvent e) {
+                dialogWindowActivated(e);
+            }
+        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
@@ -229,6 +248,11 @@ public class OptionsDialog extends JDialog {
 
             //---- copyToClipboardCheckbox ----
             copyToClipboardCheckbox.setText("Copy to clipboard");
+            copyToClipboardCheckbox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    copyToClipboardCheckboxActionPerformed(e);
+                }
+            });
             dialogPane.add(copyToClipboardCheckbox, BorderLayout.CENTER);
 
             //---- selectOutputCheckBox ----

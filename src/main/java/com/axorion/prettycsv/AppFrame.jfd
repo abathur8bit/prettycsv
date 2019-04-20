@@ -111,7 +111,7 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "copyCheckBoxMenuItem"
-						"text": "Copy Output"
+						"text": "Copy To Clipboard"
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "copyCheckBoxMenuItemActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {

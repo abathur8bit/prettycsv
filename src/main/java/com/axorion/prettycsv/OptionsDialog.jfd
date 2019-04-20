@@ -8,6 +8,7 @@ new FormModel {
 			"modalityType": enum java.awt.Dialog$ModalityType APPLICATION_MODAL
 			"resizable": false
 			"$sizePolicy": 1
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowActivated", "dialogWindowActivated", true ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
@@ -93,6 +94,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JCheckBox" ) {
 					name: "copyToClipboardCheckbox"
 					"text": "Copy to clipboard"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "copyToClipboardCheckboxActionPerformed", true ) )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
 				} )

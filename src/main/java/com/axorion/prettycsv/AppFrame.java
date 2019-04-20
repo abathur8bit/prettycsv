@@ -322,6 +322,8 @@ public class AppFrame extends JFrame implements InvocationHandler {
             dlg.setVisible(true);
             selectCheckbox.setSelected(prefs.isSelectOutput());
             selectOutputMenuItem.setSelected(prefs.isSelectOutput());
+            copyCheckBox.setSelected(prefs.isCopyToClipboard());
+            copyCheckBoxMenuItem.setSelected(prefs.isCopyToClipboard());
             selectHeadingMenu();
         }
     }
@@ -569,7 +571,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 menu2.add(selectOutputMenuItem);
 
                 //---- copyCheckBoxMenuItem ----
-                copyCheckBoxMenuItem.setText("Copy Output");
+                copyCheckBoxMenuItem.setText("Copy To Clipboard");
                 copyCheckBoxMenuItem.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         copyCheckBoxMenuItemActionPerformed(e);
