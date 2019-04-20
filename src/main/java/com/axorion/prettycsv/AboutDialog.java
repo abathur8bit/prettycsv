@@ -50,7 +50,7 @@ public class AboutDialog extends JDialog {
     private void urlLabelMouseClicked(MouseEvent e) {
         try {
             if(Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                Desktop.getDesktop().browse(new URI("http://8BitCoder.com/prettycsv"));
+                Desktop.getDesktop().browse(new URI("https://8BitCoder.com/prettycsv"));
             }
         } catch(Exception ex) {
             //ignore
@@ -103,7 +103,7 @@ public class AboutDialog extends JDialog {
                     contentPanel.add(label1);
 
                     //---- label4 ----
-                    label4.setText("Version 1.0");
+                    label4.setText("Version 1.2");
                     label4.setHorizontalAlignment(SwingConstants.CENTER);
                     contentPanel.add(label4);
 

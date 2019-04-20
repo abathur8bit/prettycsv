@@ -17,7 +17,22 @@ public class HelpDialog extends JDialog {
     public HelpDialog(Frame owner) {
         super(owner);
         initComponents();
-        helpText.setText("<h1 id=\"prettycsv\">PrettyCSV</h1>  <p><strong>PrettyCSV</strong> is an open source tool that formats CSV text into neat columns, much like a spreadsheet, suitable for pasting into email or textual documents. </p>  <h1 id=\"convertingtext\">Converting text</h1>  <ol> <li>Paste CSV text into the <em>Source</em> field.</li> <li>Click the <strong>Format</strong> button.</li> <li>The neatly formatted text appears in the <em>Formatted</em> field below.</li> </ol>  <h1 id=\"downloading\">Downloading</h1>  <p>You can get the latest version at http://8BitCoder.com/prettycsv</p>");
+        helpText.setText("<h1 id=\"prettycsv\">PrettyCSV</h1>\n"+
+                "\n"+
+                "<p><strong>PrettyCSV</strong> is an open source tool that formats CSV text into neat columns, much like a spreadsheet, suitable for pasting into email or textual documents. </p>\n"+
+                "\n"+
+                "<h1 id=\"convertingtext\">Converting text</h1>\n"+
+                "\n"+
+                "<ol>\n"+
+                "<li>Paste comma or tab separated text into the <em>Source</em> field.</li>\n"+
+                "<li>Click the <strong>Format</strong> button.</li>\n"+
+                "<li>The neatly formatted text appears in the <em>Formatted</em> field below.</li>\n"+
+                "<li>You can optionally copy the formatted text to the clipboard.</li>\n"+
+                "</ol>\n"+
+                "\n"+
+                "<h1 id=\"downloading\">Downloading</h1>\n"+
+                "\n"+
+                "<p>You can get the latest version at http://8BitCoder.com/prettycsv</p>");
         helpText.setCaretPosition(0);
     }
 

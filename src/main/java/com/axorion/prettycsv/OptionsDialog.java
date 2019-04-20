@@ -112,6 +112,7 @@ public class OptionsDialog extends JDialog {
         nochangeRadioButton = new JRadioButton();
         panel3 = new JPanel();
         exampleTextArea = new JTextArea();
+        copyToClipboardCheckbox = new JCheckBox();
         selectOutputCheckBox = new JCheckBox();
         buttonBar = new JPanel();
         okButton = new JButton();
@@ -224,7 +225,11 @@ public class OptionsDialog extends JDialog {
                 }
                 contentPanel.add(headingTypePanel, BorderLayout.CENTER);
             }
-            dialogPane.add(contentPanel, BorderLayout.NORTH);
+            dialogPane.add(contentPanel, BorderLayout.PAGE_START);
+
+            //---- copyToClipboardCheckbox ----
+            copyToClipboardCheckbox.setText("Copy to clipboard");
+            dialogPane.add(copyToClipboardCheckbox, BorderLayout.CENTER);
 
             //---- selectOutputCheckBox ----
             selectOutputCheckBox.setText("Select output");
@@ -233,7 +238,7 @@ public class OptionsDialog extends JDialog {
                     selectOutputCheckBoxActionPerformed(e);
                 }
             });
-            dialogPane.add(selectOutputCheckBox, BorderLayout.CENTER);
+            dialogPane.add(selectOutputCheckBox, BorderLayout.LINE_START);
 
             //======== buttonBar ========
             {
@@ -253,7 +258,7 @@ public class OptionsDialog extends JDialog {
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
             }
-            dialogPane.add(buttonBar, BorderLayout.SOUTH);
+            dialogPane.add(buttonBar, BorderLayout.PAGE_END);
         }
         contentPane.add(dialogPane, BorderLayout.CENTER);
         setSize(400, 300);
@@ -284,6 +289,7 @@ public class OptionsDialog extends JDialog {
     private JRadioButton nochangeRadioButton;
     private JPanel panel3;
     private JTextArea exampleTextArea;
+    private JCheckBox copyToClipboardCheckbox;
     private JCheckBox selectOutputCheckBox;
     private JPanel buttonBar;
     private JButton okButton;

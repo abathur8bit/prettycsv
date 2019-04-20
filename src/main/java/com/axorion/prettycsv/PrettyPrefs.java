@@ -26,6 +26,7 @@ public class PrettyPrefs {
     AppFrame parent;
     Preferences prefs;
     boolean selectOutput = true;
+    boolean copyToClipboard = false;
     HeadingTypeEnum headingType = HeadingTypeEnum.HEADING_UPPERCASE;
     int columnGap = 1;
     Rectangle bounds;
@@ -49,6 +50,7 @@ public class PrettyPrefs {
                 InputStream in = new FileInputStream(getPrefsFile());
                 Preferences.importPreferences(in);
                 selectOutput = prefs.getBoolean("selectOutput",selectOutput);
+                copyToClipboard = prefs.getBoolean("copyToClipboard",copyToClipboard);
                 columnGap = prefs.getInt("columnGap",columnGap);
                 headingType = HeadingTypeEnum.valueOf(prefs.get("headingType",HeadingTypeEnum.HEADING_UPPERCASE.toString()));
                 String position = prefs.get("window",null);
@@ -65,6 +67,7 @@ public class PrettyPrefs {
     public void savePrefs() {
         try {
             prefs.put("selectOutput",Boolean.toString(selectOutput));   //select output after format
+            prefs.put("copyToClipboard",Boolean.toString(copyToClipboard));   //copy text to the clipboard after formatting
             prefs.put("columnGap",Integer.toString(columnGap));         //spaces between columns
             prefs.put("headingType",headingType.toString());            //Headings Name
             if(parent != null) {
@@ -85,6 +88,14 @@ public class PrettyPrefs {
 
     public void setSelectOutput(boolean selectOutput) {
         this.selectOutput = selectOutput;
+    }
+
+    public boolean isCopyToClipboard() {
+        return copyToClipboard;
+    }
+
+    public void setCopyToClipboard(boolean copyToClipboard) {
+        this.copyToClipboard = copyToClipboard;
     }
 
     public HeadingTypeEnum getHeadingType() {

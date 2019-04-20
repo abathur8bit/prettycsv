@@ -58,7 +58,7 @@ new FormModel {
 				name: "controlsPanel"
 				add( new FormComponent( "javax.swing.JCheckBox" ) {
 					name: "selectCheckbox"
-					"text": "Select Output Text"
+					"text": "Select"
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectCheckboxActionPerformed", true ) )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "West"
@@ -78,6 +78,13 @@ new FormModel {
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "East"
+				} )
+				add( new FormComponent( "javax.swing.JCheckBox" ) {
+					name: "copyCheckBox"
+					"text": "Copy"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "copyCheckBoxActionPerformed", true ) )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "South"
@@ -101,6 +108,11 @@ new FormModel {
 						"text": "Select Output"
 						"selectedIcon": new com.jformdesigner.model.SwingIcon( 2, "FileChooser.detailsViewIcon" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectOutputMenuItemActionPerformed", true ) )
+					} )
+					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
+						name: "copyCheckBoxMenuItem"
+						"text": "Copy Output"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "copyCheckBoxMenuItemActionPerformed", true ) )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator1"

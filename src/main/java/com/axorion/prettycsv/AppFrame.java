@@ -20,17 +20,25 @@ package com.axorion.prettycsv;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.InvalidPreferencesFormatException;
 
@@ -78,6 +86,9 @@ public class AppFrame extends JFrame implements InvocationHandler {
 
         selectCheckbox.setSelected(prefs.isSelectOutput());
         selectOutputMenuItem.setSelected(prefs.isSelectOutput());
+        copyCheckBox.setSelected(prefs.isCopyToClipboard());
+        copyCheckBoxMenuItem.setSelected(prefs.isCopyToClipboard());
+
         selectHeadingMenu();
 
         if(!isMac) {
@@ -113,6 +124,91 @@ public class AppFrame extends JFrame implements InvocationHandler {
             } catch(Exception e) {
                 PrettyCSV.handleError("Error during application initialization",e);
             }
+        } else {
+            setIconImage(loadImage("icon.png"));
+        }
+    }
+
+    public void setupHtmlCopy() {
+        destField.getActionMap().put("Copy",new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                Document d = destField.getDocument();
+                int start = destField.getSelectionStart();
+                int end = destField.getSelectionEnd();
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html><body>");
+                sb.append("<pre style='font-family: Menlo, Monaco, Consolas, \"Courier New\", monospace; font-size: 10pt'>");
+
+                try {
+                    String s = d.getText(start,end-start);
+                    String as[] = s.replaceAll("\r?\n","\n").split("(?!^)");
+                    sb.append(as);
+                    sb.append("</pre>");
+                    sb.append("</body></html>");
+
+                    Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    c.setContents(new MyTransferable(s, sb.toString()), null);
+
+                } catch(BadLocationException ex) {
+                    ex.printStackTrace();
+                    destField.copy();
+                }
+            }
+        });
+//        destField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()), "Copy");
+    }
+
+    private static class MyTransferable implements Transferable {
+        private static ArrayList<DataFlavor> MyFlavors = new ArrayList<DataFlavor>();
+        private String plain = null;
+        private String html = null;
+
+        static {
+            try {
+                for (String m : new String[]{"text/plain", "text/html"}) {
+                    MyFlavors.add(new DataFlavor(m + ";class=java.lang.String"));
+                    MyFlavors.add(new DataFlavor(m + ";class=java.io.Reader"));
+                    MyFlavors.add(new DataFlavor(m + ";class=java.io.InputStream;charset=utf-8"));
+                }
+            }
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public MyTransferable(String plain, String html) {
+            this.plain = plain;
+            this.html = html;
+        }
+
+        public DataFlavor[] getTransferDataFlavors() {
+            return MyFlavors.toArray(new DataFlavor[MyFlavors.size()]);
+        }
+
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            return MyFlavors.contains(flavor);
+        }
+
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+            String s = null;
+            if (flavor.getMimeType().contains("text/plain")) {
+                s = plain;
+            }
+            else if (flavor.getMimeType().contains("text/html")) {
+                s = html;
+            }
+            if (s != null) {
+                if (String.class.equals(flavor.getRepresentationClass())) {
+                    return s;
+                }
+                else if (Reader.class.equals(flavor.getRepresentationClass())) {
+                    return new StringReader(s);
+                }
+                else if (InputStream.class.equals(flavor.getRepresentationClass())) {
+                    return new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8));
+                }
+            }
+            throw new UnsupportedFlavorException(flavor);
         }
     }
 
@@ -127,16 +223,48 @@ public class AppFrame extends JFrame implements InvocationHandler {
         } else {
             formatter.headingType = prefs.getHeadingType();
             formatter.gap = prefs.getColumnGap();
-            String formatted = formatter.format(sourceField.getText());
-            destField.setText(formatted);
-            if(selectCheckbox.isSelected()) {
-                destField.setSelectionEnd(formatted.length());
-                destField.setSelectionStart(0);
-            } else {
-                destField.setCaretPosition(0);
+            try {
+                String formatted = formatter.format(sourceField.getText());
+                destField.setText(formatted);
+                if(selectCheckbox.isSelected()) {
+                    destField.setSelectionEnd(formatted.length());
+                    destField.setSelectionStart(0);
+                } else {
+                    destField.setCaretPosition(0);
+                }
+                destField.requestFocus();
+
+                if(prefs.isCopyToClipboard()) {
+                    copyDestToClipboard();
+                }
+            } catch(Exception ex) {
+                sourceField.requestFocus(); //put the cursor back into the source field for user to try again
+                sourceField.setSelectionEnd(sourceField.getText().length());
+                sourceField.setSelectionStart(0);
+                PrettyCSV.handleError("Unable to parse text",ex);
             }
-            destField.requestFocus();
         }
+    }
+
+    private void copyDestToClipboard() {
+//        Document d = destField.getDocument();
+//        int start = destField.getSelectionStart();
+//        int end = destField.getSelectionEnd();
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("<html><body>");
+//        sb.append("<pre style='font-family: Menlo, Monaco, Consolas, \"Courier New\", monospace; font-size: 10pt'>");
+//
+//        try {
+//            String s = d.getText(start,end-start);
+//            String as[] = s.replaceAll("\r?\n","\n").split("(?!^)");
+//            sb.append(as);
+//            sb.append("</pre>");
+//            sb.append("</body></html>");
+//        } catch(BadLocationException ex) {
+//            ex.printStackTrace();
+//            destField.copy();
+//        }
+        destField.copy();
     }
 
     private void clearMenuItemActionPerformed(ActionEvent e) {
@@ -214,11 +342,24 @@ public class AppFrame extends JFrame implements InvocationHandler {
         selectOutputMenuItemActionPerformed(e);
     }
 
+    private void copyCheckBoxActionPerformed(ActionEvent e) {
+        copyCheckBoxMenuItemActionPerformed(e);
+    }
+
     private void selectOutputMenuItemActionPerformed(ActionEvent e) {
         boolean selected = !prefs.isSelectOutput();
         prefs.setSelectOutput(selected);
         selectCheckbox.setSelected(selected);
         selectOutputMenuItem.setSelected(selected);
+
+        prefs.savePrefs();
+    }
+
+    private void copyCheckBoxMenuItemActionPerformed(ActionEvent e) {
+        boolean selected = !prefs.isCopyToClipboard();
+        prefs.setCopyToClipboard(selected);
+        copyCheckBox.setSelected(selected);
+        copyCheckBoxMenuItem.setSelected(selected);
 
         prefs.savePrefs();
     }
@@ -356,6 +497,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
         clearMenuItem = new JMenuItem();
         menu2 = new JMenu();
         selectOutputMenuItem = new JCheckBoxMenuItem();
+        copyCheckBoxMenuItem = new JCheckBoxMenuItem();
         headingUppercaseMenuItem = new JCheckBoxMenuItem();
         headingLowercaseMenuItem = new JCheckBoxMenuItem();
         headingTitlecaseMenuItem = new JCheckBoxMenuItem();
@@ -377,6 +519,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
         buttonPanel = new JPanel();
         convertButton = new JButton();
         exitButton = new JButton();
+        copyCheckBox = new JCheckBox();
 
         //======== this ========
         setTitle("PrettyCSV");
@@ -424,6 +567,15 @@ public class AppFrame extends JFrame implements InvocationHandler {
                     }
                 });
                 menu2.add(selectOutputMenuItem);
+
+                //---- copyCheckBoxMenuItem ----
+                copyCheckBoxMenuItem.setText("Copy Output");
+                copyCheckBoxMenuItem.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        copyCheckBoxMenuItemActionPerformed(e);
+                    }
+                });
+                menu2.add(copyCheckBoxMenuItem);
                 menu2.addSeparator();
 
                 //---- headingUppercaseMenuItem ----
@@ -541,7 +693,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
             controlsPanel.setLayout(new BorderLayout());
 
             //---- selectCheckbox ----
-            selectCheckbox.setText("Select Output Text");
+            selectCheckbox.setText("Select");
             selectCheckbox.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     selectCheckboxActionPerformed(e);
@@ -573,6 +725,15 @@ public class AppFrame extends JFrame implements InvocationHandler {
                 buttonPanel.add(exitButton);
             }
             controlsPanel.add(buttonPanel, BorderLayout.EAST);
+
+            //---- copyCheckBox ----
+            copyCheckBox.setText("Copy");
+            copyCheckBox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    copyCheckBoxActionPerformed(e);
+                }
+            });
+            controlsPanel.add(copyCheckBox, BorderLayout.CENTER);
         }
         contentPane.add(controlsPanel, BorderLayout.SOUTH);
         pack();
@@ -587,6 +748,7 @@ public class AppFrame extends JFrame implements InvocationHandler {
     private JMenuItem clearMenuItem;
     private JMenu menu2;
     private JCheckBoxMenuItem selectOutputMenuItem;
+    private JCheckBoxMenuItem copyCheckBoxMenuItem;
     private JCheckBoxMenuItem headingUppercaseMenuItem;
     private JCheckBoxMenuItem headingLowercaseMenuItem;
     private JCheckBoxMenuItem headingTitlecaseMenuItem;
@@ -608,5 +770,6 @@ public class AppFrame extends JFrame implements InvocationHandler {
     private JPanel buttonPanel;
     private JButton convertButton;
     private JButton exitButton;
+    private JCheckBox copyCheckBox;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }
